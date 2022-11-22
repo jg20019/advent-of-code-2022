@@ -8,4 +8,4 @@
   :depends-on (:str)
   :components ((:file "package")
                (:file "util" :depends-on ("package"))
-               (:file "day-1" :depends-on ("utils"))))
+               (:file "day-1" :depends-on ("util"))))
