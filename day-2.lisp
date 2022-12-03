@@ -2,7 +2,9 @@
 
 (defvar *rock* 1)
 (defvar *paper* 2)
-(defvar *scisscors* 3)
+(defvar *scissors* 3)
+
+(defvar *moves* (list *rock* *paper* *scissors*))
 
 (defvar *losing-score* 0)
 (defvar *winning-score* 6)
@@ -17,13 +19,16 @@
     (#\Y *paper*)
     (#\Z *scissors*)))
 
+(defun beats-p (a b) 
+  "Returns true if a beats b."
+  (or (and (= a *rock*) (= b *scissors*))
+      (and (= a *paper*) (= b *rock*))
+      (and (= a *scissors*) (= b *paper*))))
 
 (defun outcome-score (opponent-move your-move)
-  (cond ((= opponent-move your-move) *drawing-score*)
-        ((and (= opponent-move *scissors*) (= your-move *rock*)) *winning-score*)
-        ((and (= opponent-move *rock*) (= your-move *scissors*)) *losing-score*)
-        ((< opponent-move your-move) *winning-score*)
-        ((> opponent-move your-move) *losing-score*)))
+  (cond ((beats-p opponent-move your-move) *losing-score*)
+        ((beats-p your-move opponent-move) *winning-score*)
+        (t *drawing-score*)))
 
 (defun score-round (line) 
   (let* ((opponent-move (decrypt-move (aref line 0)))
@@ -34,16 +39,10 @@
   move)
 
 (defun losing-move (move) 
-  (case move 
-    (*rock* *scissors*)
-    (*paper* *rock*)
-    (*scissors* *paper*)))
+  (find-if (lambda (x) (beats-p move x)) *moves*))
 
 (defun winning-move (move) 
-  (case move 
-    (*rock* *paper*)
-    (*paper* *scissors*)
-    (*scissors* *rock*)))
+  (find-if (lambda (x) (beats-p x move)) *moves*))
 
 (defun score-round (line) 
   (let ((opponent-move (decrypt-move (aref line 0)))
@@ -53,4 +52,5 @@
       (#\Y (+ *drawing-score* (drawing-move opponent-move)))
       (#\Z (+ *winning-score* (winning-move opponent-move))))))
 
-(apply #'+ (read-input "day-2" #'score-round))
+(defun solve-day-2 () 
+  (apply #'+ (read-input "input/day-2" #'score-round))) 
